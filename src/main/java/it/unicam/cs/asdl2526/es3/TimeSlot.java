@@ -4,7 +4,7 @@
 package it.unicam.cs.asdl2526.es3;
 
 // TODO completare gli import se necessario
-
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
@@ -44,8 +44,13 @@ public class TimeSlot implements Comparable<TimeSlot> {
      */
     public TimeSlot(GregorianCalendar start, GregorianCalendar stop) {
         // TODO implementare
-        this.start = start;
-        this.stop = stop;
+        if(start == null || stop == null) throw new NullPointerException("Start and stop cannot be null");
+        else if(start.equals(stop) || stop.before(start)) throw new IllegalArgumentException("Start cannot be greater than stop");
+        else{
+            this.start = start;
+            this.stop = stop;
+        }
+
     }
 
     /**
@@ -69,8 +74,12 @@ public class TimeSlot implements Comparable<TimeSlot> {
      */
     @Override
     public boolean equals(Object obj) {
-        // TODO implementare
-        return false;
+        if(obj == null) return false;
+        if(!(obj instanceof TimeSlot)) return false;
+        TimeSlot other = (TimeSlot)obj;
+        if(!start.equals(other.start)) return false;
+        if(!stop.equals(other.stop)) return false;
+        return true;
     }
 
     /*
@@ -80,8 +89,10 @@ public class TimeSlot implements Comparable<TimeSlot> {
      */
     @Override
     public int hashCode() {
-        // TODO implementare
-        return -1;
+        // TODO implementare ??????????????????????
+        int hash;
+        hash = start.hashCode() * 31 + stop.hashCode() * 17;
+        return hash;
     }
 
     /*
@@ -92,13 +103,18 @@ public class TimeSlot implements Comparable<TimeSlot> {
     @Override
     public int compareTo(TimeSlot o) {
         // TODO implementare
-        return -1;
+
+        if(start.compareTo(o.start) < 0) return -1;
+        if(start.compareTo(o.start) > 0) return 1;
+        if(stop.compareTo(o.stop) < 0) return -1;
+        if(stop.compareTo(o.stop) > 0) return 1;
+        return 0;
     }
 
     /**
      * Determina il numero di minuti di sovrapposizione tra questo timeslot e
      * quello passato.
-     * 
+     *
      * @param o
      *              il time slot da confrontare con questo
      * @return il numero di minuti di sovrapposizione tra questo time slot e
@@ -119,7 +135,21 @@ public class TimeSlot implements Comparable<TimeSlot> {
      */
     public int getMinutesOfOverlappingWith(TimeSlot o) {
         // TODO implementare
-        return -1;
+        if (o == null) throw new NullPointerException();
+
+        long startMax = Math.max(this.start.getTimeInMillis(), o.start.getTimeInMillis());
+        long stopMin  = Math.min(this.stop.getTimeInMillis(),  o.stop.getTimeInMillis());
+
+        if (startMax >= stopMin)
+            return -1;
+
+        long diffMillis = stopMin - startMax;
+        long minutes = diffMillis / (1000L * 60L);
+
+        if (minutes > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Minutes of overlapping exceed Integer.MAX_VALUE");
+
+        return (int) minutes;
     }
 
     /**
@@ -136,6 +166,13 @@ public class TimeSlot implements Comparable<TimeSlot> {
      */
     public boolean overlapsWith(TimeSlot o) {
         // TODO implementare
+        if(o == null) throw new NullPointerException("TimeSlot cannot be null");
+        long startMax = Math.max(this.start.getTimeInMillis(), o.start.getTimeInMillis());
+        long stopMin  = Math.min(this.stop.getTimeInMillis(),  o.stop.getTimeInMillis());
+        if (startMax >= stopMin)
+            return false;
+        if( (stopMin - startMax) > (MINUTES_OF_TOLERANCE_FOR_OVERLAPPING * 60 * 1000))
+            return true;
         return false;
     }
 
@@ -151,7 +188,29 @@ public class TimeSlot implements Comparable<TimeSlot> {
     @Override
     public String toString() {
         // TODO implementare
-        return null;
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        sb.append(start.get(Calendar.DAY_OF_MONTH));
+        sb.append("/");
+        sb.append(start.get(Calendar.MONTH)+1);
+        sb.append("/");
+        sb.append(start.get(Calendar.YEAR));
+        sb.append(" ");
+        sb.append(start.get(Calendar.HOUR_OF_DAY));
+        sb.append(".");
+        sb.append(start.get(Calendar.MINUTE));
+        sb.append(" - ");
+        sb.append(stop.get(Calendar.DAY_OF_MONTH));
+        sb.append("/");
+        sb.append(stop.get(Calendar.MONTH)+1);
+        sb.append("/");
+        sb.append(stop.get(Calendar.YEAR));
+        sb.append(" ");
+        sb.append(stop.get(Calendar.HOUR_OF_DAY));
+        sb.append(".");
+        sb.append(stop.get(Calendar.MINUTE));
+        sb.append("]");
+        return sb.toString();
     }
 
 }
