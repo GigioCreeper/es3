@@ -34,8 +34,15 @@ public class Prenotazione implements Comparable<Prenotazione> {
     public Prenotazione(String aula, TimeSlot timeSlot, String docente,
             String motivo) {
         // TODO implementare
+        if (aula == null || timeSlot == null || docente == null
+                || motivo == null) {
+            throw new NullPointerException(
+                    "Nessun parametro puo' essere null");
+        }
         this.aula = aula;
         this.timeSlot = timeSlot;
+        this.docente = docente;
+        this.motivo = motivo;
     }
 
     /**
@@ -90,6 +97,14 @@ public class Prenotazione implements Comparable<Prenotazione> {
     @Override
     public boolean equals(Object obj) {
         // TODO implementare
+        if (obj == null) return false;
+        if (this == obj) return true;
+
+        if (obj instanceof Prenotazione) {
+            Prenotazione p = (Prenotazione) obj;
+            return aula.equals(p.getAula()) && timeSlot.equals(p.getTimeSlot());
+
+        }
         return false;
     }
 
@@ -100,7 +115,7 @@ public class Prenotazione implements Comparable<Prenotazione> {
     @Override
     public int hashCode() {
         // TODO implementare
-        return -1;
+        return (int) aula.hashCode() * 37 * (int) timeSlot.hashCode() * 37;
     }
 
     /*
@@ -111,7 +126,13 @@ public class Prenotazione implements Comparable<Prenotazione> {
     @Override
     public int compareTo(Prenotazione o) {
         // TODO implementare
+        if (this.getTimeSlot().compareTo(o.getTimeSlot()) > 0) return 1;
+        else if (this.getTimeSlot().compareTo(o.getTimeSlot()) < 0) return -1;
+        if (this.aula.compareTo(o.getAula()) > 0) return 1;
+        else if (this.aula.compareTo(o.getAula()) < 0) return -1;
+        if(this.equals(o)) return 0;
         return -1;
+
     }
 
     @Override
